@@ -1,116 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Privacy Policy - Pinpoint</title>
 <meta name="description" content="Pinpoint privacy policy. No servers, no analytics, no account. Everything stays in your browser." />
 <link rel="icon" href="./assets/icon.png" />
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0a0c11; --bg-2: #0f1219; --panel: #151925;
-    --line: rgba(255,255,255,.09); --line-strong: rgba(255,255,255,.16);
-    --ink: #f4f5f7; --muted: #9aa1ae; --faint: #6b7280;
-    --accent: #2a4fd6; --accent-soft: #4f6ef0;
-    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --ease: cubic-bezier(.16,1,.3,1);
-  }
-  body { font-family: var(--font); background: var(--bg); color: var(--ink); line-height: 1.65; -webkit-font-smoothing: antialiased; }
-  a { color: var(--accent-soft); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .wrap { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 24px; }
-
-  nav { height: 64px; display: flex; align-items: center; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(10,12,17,.72); backdrop-filter: blur(12px); z-index: 10; }
-  nav .wrap { max-width: 1180px; display: flex; align-items: center; justify-content: space-between; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 16px; color: var(--ink); letter-spacing: -.01em; }
-  .brand img { width: 26px; height: 26px; border-radius: 7px; display: block; }
-  .back { font-size: 14px; color: var(--muted); }
-  .back:hover { color: var(--ink); text-decoration: none; }
-
-  header.h { padding: 64px 0 12px; }
-  header.h h1 { font-size: clamp(30px, 4vw, 42px); letter-spacing: -.03em; line-height: 1.08; }
-  header.h .meta { margin-top: 12px; color: var(--faint); font-size: 14px; }
-
-  .summary { margin: 32px 0 8px; padding: 18px 20px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--bg-2); color: var(--muted); font-size: 15px; }
-  .summary b { color: var(--ink); font-weight: 600; }
-
-  main { padding: 24px 0 96px; }
-  h2 { font-size: 20px; letter-spacing: -.01em; margin: 40px 0 12px; }
-  p { color: var(--muted); margin: 12px 0; }
-  ul { color: var(--muted); margin: 12px 0; padding-left: 22px; }
-  li { margin: 8px 0; }
-  strong { color: var(--ink); font-weight: 600; }
-  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; color: var(--accent-soft); background: var(--panel); padding: 1px 6px; border-radius: 5px; }
-
-  footer { border-top: 1px solid var(--line); padding: 30px 0 50px; color: var(--faint); font-size: 13.5px; }
-  footer .wrap { max-width: 1180px; display: flex; gap: 18px; flex-wrap: wrap; justify-content: space-between; }
-  footer a { color: var(--muted); }
-</style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#0a0c11', bg2: '#0f1219', panel: '#151925',
+          ink: '#f4f5f7', muted: '#9aa1ae', faint: '#6b7280',
+          accent: '#2a4fd6', accentSoft: '#4f6ef0',
+          line: 'rgba(255,255,255,0.09)', lineStrong: 'rgba(255,255,255,0.16)',
+        },
+        fontFamily: {
+          sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        },
+      },
+    },
+  };
+</script>
 </head>
-<body>
-<nav>
-  <div class="wrap">
-    <a class="brand" href="./index.html"><img src="./assets/icon.png" alt="Pinpoint" /> Pinpoint</a>
-    <a class="back" href="./index.html">Back to site</a>
+<body class="bg-bg text-ink font-sans antialiased leading-[1.65]">
+
+<nav class="sticky top-0 z-10 h-16 flex items-center border-b border-line bg-bg/70 backdrop-blur-md">
+  <div class="w-full max-w-[1180px] mx-auto px-6 flex items-center justify-between">
+    <a href="./index.html" class="flex items-center gap-2.5 font-semibold text-base tracking-tight"><img src="./assets/icon.png" alt="Pinpoint" class="w-[26px] h-[26px] rounded-[7px] block" /> Pinpoint</a>
+    <a href="./index.html" class="text-sm text-muted hover:text-ink transition-colors">Back to site</a>
   </div>
 </nav>
 
-<header class="h">
-  <div class="wrap">
-    <h1>Privacy Policy</h1>
-    <div class="meta">Last updated: June 2026</div>
+<header class="pt-16 pb-3">
+  <div class="w-full max-w-[760px] mx-auto px-6">
+    <h1 class="text-[clamp(30px,4vw,42px)] tracking-[-0.03em] leading-[1.08]">Privacy Policy</h1>
+    <div class="mt-3 text-faint text-sm">Last updated: June 2026</div>
   </div>
 </header>
 
-<main>
-  <div class="wrap">
-    <div class="summary">
-      <b>The short version:</b> Pinpoint runs entirely in your browser. It has no servers, collects no personal data, uses no analytics, and requires no account. Your comments and screenshots stay on your own device.
+<main class="pt-6 pb-24">
+  <div class="w-full max-w-[760px] mx-auto px-6">
+    <div class="my-8 px-5 py-[18px] border border-lineStrong rounded-xl bg-bg2 text-muted text-[15px]">
+      <b class="text-ink font-semibold">The short version:</b> Pinpoint runs entirely in your browser. It has no servers, collects no personal data, uses no analytics, and requires no account. Your comments and screenshots stay on your own device.
     </div>
 
-    <h2>What Pinpoint does</h2>
-    <p>Pinpoint is a browser extension for leaving comments on elements of a live web page and exporting them as a Markdown brief for an AI coding assistant. All of this happens locally, inside your browser.</p>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">What Pinpoint does</h2>
+    <p class="text-muted my-3">Pinpoint is a browser extension for leaving comments on elements of a live web page and exporting them as a Markdown brief for an AI coding assistant. All of this happens locally, inside your browser.</p>
 
-    <h2>Data we collect</h2>
-    <p><strong>None.</strong> Pinpoint does not send any data to us or to any third party. There is no backend, no telemetry, no tracking, no advertising identifiers, and no account system. We cannot see your pages, your comments, or your screenshots.</p>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">Data we collect</h2>
+    <p class="text-muted my-3"><strong class="text-ink font-semibold">None.</strong> Pinpoint does not send any data to us or to any third party. There is no backend, no telemetry, no tracking, no advertising identifiers, and no account system. We cannot see your pages, your comments, or your screenshots.</p>
 
-    <h2>Data Pinpoint stores on your device</h2>
-    <p>To work as expected, Pinpoint keeps a small amount of data in your browser's local storage, scoped to each website you use it on:</p>
-    <ul>
-      <li><strong>Your comments</strong> and their element references, so they persist across reloads of that site.</li>
-      <li><strong>Whether Pinpoint is turned on</strong> for that site, plus your preferences (keyboard shortcuts, numbered pins, last-used markup color and thickness).</li>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">Data Pinpoint stores on your device</h2>
+    <p class="text-muted my-3">To work as expected, Pinpoint keeps a small amount of data in your browser's local storage, scoped to each website you use it on:</p>
+    <ul class="text-muted my-3 pl-[22px] list-disc space-y-2">
+      <li><strong class="text-ink font-semibold">Your comments</strong> and their element references, so they persist across reloads of that site.</li>
+      <li><strong class="text-ink font-semibold">Whether Pinpoint is turned on</strong> for that site, plus your preferences (keyboard shortcuts, numbered pins, last-used markup color and thickness).</li>
     </ul>
-    <p>This data never leaves your device. You can clear it at any time from within the extension (Clear all) or by clearing your browser's site data.</p>
+    <p class="text-muted my-3">This data never leaves your device. You can clear it at any time from within the extension (Clear all) or by clearing your browser's site data.</p>
 
-    <h2>Screenshots</h2>
-    <p>When you capture an element screenshot, the image is created in your browser and saved to your own <strong>Downloads</strong> folder (or kept inline if saving is unavailable). Screenshots are never uploaded anywhere.</p>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">Screenshots</h2>
+    <p class="text-muted my-3">When you capture an element screenshot, the image is created in your browser and saved to your own <strong class="text-ink font-semibold">Downloads</strong> folder (or kept inline if saving is unavailable). Screenshots are never uploaded anywhere.</p>
 
-    <h2>The hand-off brief</h2>
-    <p>When you choose to hand off your comments, Pinpoint builds a Markdown summary and copies it to your clipboard. What you do with it next, for example pasting it into ChatGPT, Claude, Cursor, or Copilot, is your choice and is governed by that service's own privacy policy. Pinpoint itself sends nothing.</p>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">The hand-off brief</h2>
+    <p class="text-muted my-3">When you choose to hand off your comments, Pinpoint builds a Markdown summary and copies it to your clipboard. What you do with it next, for example pasting it into ChatGPT, Claude, Cursor, or Copilot, is your choice and is governed by that service's own privacy policy. Pinpoint itself sends nothing.</p>
 
-    <h2>Permissions and why they are needed</h2>
-    <ul>
-      <li><code>activeTab</code>: to capture a screenshot of the current tab when you ask for one.</li>
-      <li><code>downloads</code>: to save a screenshot to your Downloads folder.</li>
-      <li><strong>Access to the sites you visit</strong> (<code>&lt;all_urls&gt;</code>): so the widget can be turned on for any site. Pinpoint does not read or transmit page content unless you actively comment on or capture an element, and even then the result stays on your device.</li>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">Permissions and why they are needed</h2>
+    <ul class="text-muted my-3 pl-[22px] list-disc space-y-2">
+      <li><code class="font-mono text-[13px] text-accentSoft bg-panel px-1.5 py-px rounded">activeTab</code>: to capture a screenshot of the current tab when you ask for one.</li>
+      <li><code class="font-mono text-[13px] text-accentSoft bg-panel px-1.5 py-px rounded">downloads</code>: to save a screenshot to your Downloads folder.</li>
+      <li><strong class="text-ink font-semibold">Access to the sites you visit</strong> (<code class="font-mono text-[13px] text-accentSoft bg-panel px-1.5 py-px rounded">&lt;all_urls&gt;</code>): so the widget can be turned on for any site. Pinpoint does not read or transmit page content unless you actively comment on or capture an element, and even then the result stays on your device.</li>
     </ul>
 
-    <h2>Children</h2>
-    <p>Pinpoint is a developer tool and is not directed at children under 13.</p>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">Children</h2>
+    <p class="text-muted my-3">Pinpoint is a developer tool and is not directed at children under 13.</p>
 
-    <h2>Changes to this policy</h2>
-    <p>If this policy changes, the updated version will be posted on this page with a new date. Because Pinpoint collects no data, changes will generally only clarify wording.</p>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">Changes to this policy</h2>
+    <p class="text-muted my-3">If this policy changes, the updated version will be posted on this page with a new date. Because Pinpoint collects no data, changes will generally only clarify wording.</p>
 
-    <h2>Contact</h2>
-    <p>Questions about privacy? Email <a href="mailto:djtomerdanan@gmail.com">djtomerdanan@gmail.com</a>.</p>
+    <h2 class="text-xl tracking-[-0.01em] mt-10 mb-3">Contact</h2>
+    <p class="text-muted my-3">Questions about privacy? Email <a href="mailto:djtomerdanan@gmail.com" class="text-accentSoft hover:underline">djtomerdanan@gmail.com</a>.</p>
   </div>
 </main>
 
-<footer>
-  <div class="wrap">
+<footer class="border-t border-line py-8 text-faint text-[13.5px]">
+  <div class="w-full max-w-[1180px] mx-auto px-6 flex gap-[18px] flex-wrap justify-between">
     <span>Pinpoint</span>
-    <span><a href="./index.html">Home</a> &nbsp; <a href="mailto:djtomerdanan@gmail.com">Support</a> &nbsp; <a href="https://github.com/TamirAssayag/pinpoint">GitHub</a></span>
+    <span class="flex gap-4">
+      <a href="./index.html" class="text-muted hover:text-ink transition-colors">Home</a>
+      <a href="mailto:djtomerdanan@gmail.com" class="text-muted hover:text-ink transition-colors">Support</a>
+      <a href="https://github.com/TamirAssayag/pinpoint" class="text-muted hover:text-ink transition-colors">GitHub</a>
+    </span>
   </div>
 </footer>
 </body>
