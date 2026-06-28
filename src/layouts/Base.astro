@@ -1,0 +1,53 @@
+---
+const { title, description } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const icon = `${base}/assets/icon.png`;
+const ogImage = new URL(`${base}/assets/shot-1.png`, Astro.site).href;
+---
+<!doctype html>
+<html lang="en" class="scroll-smooth motion-reduce:scroll-auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" href={icon} />
+  <meta property="og:title" content="Pinpoint" />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:type" content="website" />
+</head>
+<body class="bg-bg text-ink font-sans antialiased overflow-x-hidden leading-relaxed">
+  <!-- faint grid backdrop -->
+  <div class="fixed inset-0 z-0 pointer-events-none [background-image:linear-gradient(rgba(42,79,214,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(42,79,214,.05)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(circle_at_50%_0%,#000_0%,transparent_70%)]"></div>
+
+  <div class="relative z-10">
+    <nav class="sticky top-0 z-50 h-16 flex items-center bg-bg/70 backdrop-blur-md border-b border-line">
+      <div class="w-full max-w-[1180px] mx-auto px-6 flex items-center justify-between">
+        <a href={`${base}/`} class="flex items-center gap-2.5 font-semibold text-base tracking-tight">
+          <img src={icon} alt="Pinpoint" class="w-[26px] h-[26px] rounded-[7px] block" /> Pinpoint
+        </a>
+        <div class="flex items-center gap-5">
+          <a href={`${base}/#how`} class="hidden sm:inline text-sm text-muted hover:text-ink transition-colors">How it works</a>
+          <a href={`${base}/#features`} class="hidden sm:inline text-sm text-muted hover:text-ink transition-colors">Features</a>
+          <a href={`${base}/privacy/`} class="hidden sm:inline text-sm text-muted hover:text-ink transition-colors">Privacy</a>
+          <a href={`${base}/#install`} class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-full bg-accent text-white hover:bg-accentSoft active:translate-y-px transition">Add to Chrome</a>
+        </div>
+      </div>
+    </nav>
+
+    <slot />
+
+    <footer class="border-t border-line pt-9 pb-14">
+      <div class="w-full max-w-[1180px] mx-auto px-6 flex flex-wrap gap-[18px] items-center justify-between">
+        <div class="flex items-center gap-2.5 text-muted text-[13.5px]"><img src={icon} alt="" class="w-[22px] h-[22px] rounded-md" /> Pinpoint &middot; a calmer way to review live pages</div>
+        <div class="flex gap-[22px] text-[13.5px]">
+          <a href={`${base}/privacy/`} class="text-muted hover:text-ink transition-colors">Privacy</a>
+          <a href="mailto:djtomerdanan@gmail.com" class="text-muted hover:text-ink transition-colors">Support</a>
+          <a href="https://github.com/TamirAssayag/pinpoint" class="text-muted hover:text-ink transition-colors">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
