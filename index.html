@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pinpoint - comment on any live page, hand off to your AI agent</title>
+<meta name="description" content="Point at any element on a running site, leave a comment, and hand off an agent-ready Markdown brief to ChatGPT, Claude, Cursor, or Copilot. Nothing leaves your machine." />
+<link rel="icon" href="./assets/icon.png" />
+<meta property="og:title" content="Pinpoint" />
+<meta property="og:description" content="Comment on any live page. Hand off agent-ready tasks. Nothing leaves your machine." />
+<meta property="og:image" content="./assets/shot-1.png" />
+<meta property="og:type" content="website" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c11;
+    --bg-2: #0f1219;
+    --panel: #151925;
+    --panel-2: #1b2030;
+    --line: rgba(255,255,255,.09);
+    --line-strong: rgba(255,255,255,.16);
+    --ink: #f4f5f7;
+    --muted: #9aa1ae;
+    --faint: #6b7280;
+    --accent: #2a4fd6;
+    --accent-soft: #4f6ef0;
+    --accent-weak: rgba(42,79,214,.16);
+    --radius: 14px;
+    --radius-sm: 9px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --ease: cubic-bezier(.16,1,.3,1);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  section { position: relative; }
+
+  /* faint grid backdrop */
+  .grid-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(42,79,214,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42,79,214,.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(circle at 50% 0%, #000 0%, transparent 70%);
+  }
+  .content { position: relative; z-index: 1; }
+
+  /* ── Nav ─────────────────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    height: 64px; display: flex; align-items: center;
+    backdrop-filter: blur(12px);
+    background: rgba(10,12,17,.72);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 16px; letter-spacing: -.01em; }
+  .brand img { width: 26px; height: 26px; border-radius: 7px; display: block; }
+  .nav-right { display: flex; align-items: center; gap: 22px; }
+  .nav-link { color: var(--muted); font-size: 14px; transition: color .2s var(--ease); }
+  .nav-link:hover { color: var(--ink); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: inherit; font-size: 14px; font-weight: 600;
+    padding: 10px 16px; border-radius: 999px; border: 1px solid transparent;
+    cursor: pointer; transition: transform .15s var(--ease), background .2s var(--ease), border-color .2s var(--ease);
+    white-space: nowrap;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-soft); }
+  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn-ghost:hover { background: rgba(255,255,255,.05); }
+  .btn svg { width: 16px; height: 16px; display: block; }
+
+  /* ── Hero ────────────────────────────────────────────── */
+  .hero { padding: 72px 0 56px; }
+  .hero-grid { display: grid; grid-template-columns: 1fr; gap: 48px; align-items: center; }
+  @media (min-width: 960px) { .hero-grid { grid-template-columns: 0.92fr 1.08fr; gap: 56px; } }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; color: var(--muted);
+    padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--bg-2); margin-bottom: 22px;
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-soft); }
+  h1 {
+    font-size: clamp(34px, 5vw, 54px); line-height: 1.04; letter-spacing: -.03em; font-weight: 700;
+  }
+  h1 .accent { color: var(--accent-soft); }
+  .lede { margin-top: 20px; font-size: 17px; color: var(--muted); max-width: 30em; }
+  .hero-cta { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .hero-note { margin-top: 16px; font-size: 13px; color: var(--faint); }
+
+  /* ── Interactive demo ────────────────────────────────── */
+  .demo {
+    background: linear-gradient(180deg, var(--panel), var(--bg-2));
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 30px 80px rgba(0,0,0,.5);
+    overflow: hidden;
+  }
+  .demo-toolbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,.02);
+  }
+  .demo-toolbar .label { font-size: 12.5px; color: var(--muted); }
+  .demo-toolbar .label b { color: var(--ink); font-weight: 600; }
+  .demo-toolbar .spacer { flex: 1; }
+  .mini-btn {
+    font: inherit; font-size: 12px; font-weight: 600; color: var(--muted);
+    background: transparent; border: 1px solid var(--line); border-radius: 7px;
+    padding: 5px 10px; cursor: pointer; transition: color .2s, border-color .2s, background .2s;
+  }
+  .mini-btn:hover { color: var(--ink); border-color: var(--line-strong); }
+  .mini-btn.accent { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .mini-btn.accent:hover { background: var(--accent-soft); }
+  .mini-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  .stage-wrap { position: relative; }
+  .stage {
+    position: relative; padding: 26px 24px 30px; min-height: 300px;
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(42,79,214,.10), transparent 60%),
+      var(--bg);
+  }
+  /* fake page inside the demo */
+  .fp-nav { display: flex; align-items: center; gap: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .fp-logo { font-weight: 700; font-size: 15px; }
+  .fp-link { font-size: 13px; color: var(--muted); }
+  .fp-cta { margin-left: auto; font-size: 12.5px; font-weight: 600; background: #fff; color: #111; padding: 7px 13px; border-radius: 7px; }
+  .fp-hero { padding: 26px 0 8px; }
+  .fp-h1 { font-size: 27px; font-weight: 700; letter-spacing: -.02em; line-height: 1.12; max-width: 12em; }
+  .fp-sub { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 26em; }
+  .fp-row { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .fp-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--bg-2); }
+  .fp-card .k { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
+  .fp-card .v { margin-top: 6px; font-size: 13px; color: var(--muted); }
+
+  /* targets are highlightable */
+  [data-sel] { cursor: crosshair; border-radius: 6px; transition: box-shadow .15s var(--ease), background .15s var(--ease); }
+  [data-sel].hot { box-shadow: 0 0 0 2px var(--accent-soft); background: var(--accent-weak); }
+  .sel-label {
+    position: absolute; z-index: 6; transform: translateY(-100%);
+    font-family: var(--mono); font-size: 11px; color: #fff; background: var(--accent);
+    padding: 2px 7px; border-radius: 5px 5px 5px 0; pointer-events: none; white-space: nowrap;
+    opacity: 0; transition: opacity .12s var(--ease);
+  }
+  .sel-label.show { opacity: 1; }
+
+  .pin {
+    position: absolute; z-index: 7; width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; background: var(--accent); border: 1.5px solid var(--bg);
+    border-radius: 999px 999px 999px 3px; font-size: 12px; font-weight: 700;
+    box-shadow: 0 3px 10px rgba(0,0,0,.5);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform .26s var(--ease);
+  }
+  .pin.in { transform: translate(-50%, -50%) scale(1); }
+
+  /* comment / brief rail */
+  .rail { border-top: 1px solid var(--line); background: rgba(255,255,255,.02); }
+  .rail-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px 6px; font-size: 12.5px; color: var(--muted); }
+  .rail-head .count { color: var(--ink); font-weight: 600; }
+  .rail-list { list-style: none; padding: 4px 12px 12px; display: flex; flex-direction: column; gap: 8px; max-height: 168px; overflow-y: auto; }
+  .rail-empty { padding: 8px 16px 18px; font-size: 13px; color: var(--faint); }
+  .c-item { display: flex; gap: 10px; align-items: flex-start; }
+  .c-num {
+    flex-shrink: 0; width: 20px; height: 20px; margin-top: 7px; border-radius: 999px 999px 999px 3px;
+    background: var(--accent); color: #fff; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .c-body { flex: 1; min-width: 0; }
+  .c-sel { font-family: var(--mono); font-size: 11px; color: var(--accent-soft); }
+  .c-input {
+    width: 100%; margin-top: 3px; font: inherit; font-size: 13px; color: var(--ink);
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px;
+  }
+  .c-input:focus { outline: none; border-color: var(--accent-soft); }
+
+  .brief { border-top: 1px solid var(--line); padding: 0; max-height: 0; overflow: hidden; transition: max-height .35s var(--ease); }
+  .brief.open { max-height: 320px; overflow-y: auto; }
+  .brief pre {
+    margin: 0; padding: 14px 16px; font-family: var(--mono); font-size: 12px; line-height: 1.6;
+    color: var(--muted); white-space: pre-wrap; word-break: break-word;
+  }
+  .brief .ok { display: block; padding: 10px 16px 0; font-size: 12px; color: var(--accent-soft); }
+
+  /* ── generic section ─────────────────────────────────── */
+  .sec { padding: 84px 0; border-top: 1px solid var(--line); }
+  .sec-head { max-width: 34em; margin-bottom: 44px; }
+  .sec-head h2 { font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -.025em; line-height: 1.1; }
+  .sec-head p { margin-top: 14px; color: var(--muted); font-size: 16px; }
+
+  /* steps (varied, not equal cards) */
+  .steps { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  @media (min-width: 860px) { .steps { grid-template-columns: repeat(3, 1fr); gap: 22px; } }
+  .step { position: relative; }
+  .step .frame {
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel);
+    aspect-ratio: 16 / 10;
+  }
+  .step .frame img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .step .n { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 999px; background: var(--accent-weak); color: var(--accent-soft); font-weight: 700; font-size: 13px; margin: 18px 0 8px; }
+  .step h3 { font-size: 17px; letter-spacing: -.01em; }
+  .step p { margin-top: 6px; color: var(--muted); font-size: 14.5px; }
+
+  /* capabilities split */
+  .split { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
+  @media (min-width: 920px) { .split { grid-template-columns: 1fr 1.1fr; gap: 64px; } }
+  .caps { list-style: none; display: flex; flex-direction: column; }
+  .caps li { padding: 16px 0; border-bottom: 1px solid var(--line); display: flex; gap: 14px; align-items: flex-start; }
+  .caps li:first-child { padding-top: 0; }
+  .caps .ic { flex-shrink: 0; width: 34px; height: 34px; border-radius: 9px; background: var(--accent-weak); color: var(--accent-soft); display: flex; align-items: center; justify-content: center; }
+  .caps .ic svg { width: 18px; height: 18px; }
+  .caps h4 { font-size: 15.5px; }
+  .caps p { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .split-shot { border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+  .split-shot img { width: 100%; display: block; }
+
+  /* privacy band */
+  .privacy-band { text-align: center; }
+  .privacy-band .lock { width: 46px; height: 46px; border-radius: 12px; background: var(--accent-weak); color: var(--accent-soft); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 22px; }
+  .privacy-band h2 { font-size: clamp(26px, 3.4vw, 36px); letter-spacing: -.025em; }
+  .privacy-band p { max-width: 36em; margin: 16px auto 0; color: var(--muted); font-size: 16px; }
+  .privacy-band .row { margin-top: 30px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  /* final cta */
+  .final { text-align: center; padding: 96px 0; }
+  .final h2 { font-size: clamp(28px, 4vw, 44px); letter-spacing: -.03em; line-height: 1.08; }
+  .final p { color: var(--muted); margin: 16px auto 0; max-width: 30em; font-size: 16px; }
+  .final .row { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0 56px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: space-between; }
+  footer .left { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13.5px; }
+  footer .left img { width: 22px; height: 22px; border-radius: 6px; }
+  footer .links { display: flex; gap: 22px; font-size: 13.5px; }
+  footer .links a { color: var(--muted); transition: color .2s; }
+  footer .links a:hover { color: var(--ink); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition: none !important; }
+    .pin { transform: translate(-50%, -50%) scale(1); }
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="./assets/icon.png" alt="Pinpoint" /> Pinpoint</a>
+    <div class="nav-right">
+      <a class="nav-link" href="#how">How it works</a>
+      <a class="nav-link" href="#features">Features</a>
+      <a class="nav-link" href="./privacy.html">Privacy</a>
+      <a class="btn btn-primary" id="nav-cta" href="#install">Add to Chrome</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill"><span class="dot"></span> Comments never leave your browser</span>
+      <h1>Comment on any live page.<br /><span class="accent">Hand off</span> to your AI agent.</h1>
+      <p class="lede">Point at any element on a running site, leave a comment, and export the whole batch as an agent-ready Markdown brief for ChatGPT, Claude, Cursor, or Copilot.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#install" id="hero-cta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          Add to Chrome
+        </a>
+        <a class="btn btn-ghost" href="#demo">Try the live demo</a>
+      </div>
+      <p class="hero-note">Free. Works on Chrome and Firefox. No account, no servers.</p>
+    </div>
+
+    <div class="demo" id="demo">
+      <div class="demo-toolbar">
+        <span class="label"><b>Pick mode</b> &middot; click any element below</span>
+        <span class="spacer"></span>
+        <button class="mini-btn" id="demo-reset" type="button">Reset</button>
+        <button class="mini-btn accent" id="demo-handoff" type="button" disabled>Hand off</button>
+      </div>
+
+      <div class="stage-wrap">
+        <div class="stage" id="stage">
+          <div class="fp-nav">
+            <span class="fp-logo" data-sel="span.brand-logo">Northwind</span>
+            <span class="fp-link" data-sel="a.nav-pricing">Pricing</span>
+            <span class="fp-link" data-sel="a.nav-docs">Docs</span>
+            <span class="fp-cta" data-sel="button.signup">Get started</span>
+          </div>
+          <div class="fp-hero">
+            <div class="fp-h1" data-sel="h1.page-hero">Ship the dashboard your customers asked for</div>
+            <div class="fp-sub" data-sel="p.hero-sub">A faster way to track usage, billing, and team activity in one place.</div>
+            <div class="fp-row">
+              <div class="fp-card" data-sel="div.metric-mrr"><div class="k">MRR</div><div class="v">$48,210</div></div>
+              <div class="fp-card" data-sel="div.metric-churn"><div class="k">Churn</div><div class="v">2.4% this month</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sel-label" id="sel-label"></div>
+      </div>
+
+      <div class="rail">
+        <div class="rail-head"><span class="count" id="c-count">0</span> comments collected</div>
+        <ul class="rail-list" id="c-list"></ul>
+        <div class="rail-empty" id="c-empty">Hover the page above, then click an element to drop a comment.</div>
+      </div>
+      <div class="brief" id="brief">
+        <span class="ok">Copied-ready brief for your agent</span>
+        <pre id="brief-pre"></pre>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="sec" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Review live pages the way you think</h2>
+        <p>No screenshots pasted into chat, no "the button near the top right". Pinpoint captures the exact element and your intent.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="frame"><img src="./assets/shot-1.png" alt="Picking an element and commenting" loading="lazy" /></div>
+          <span class="n">1</span>
+          <h3>Point and comment</h3>
+          <p>Hover to highlight, click to attach a comment to that exact element, right on the page.</p>
+        </div>
+        <div class="step">
+          <div class="frame"><img src="./assets/shot-2.png" alt="All comments in one panel with numbered pins" loading="lazy" /></div>
+          <span class="n">2</span>
+          <h3>Collect a batch</h3>
+          <p>Numbered pins stay anchored to their elements. Every comment lands in one panel as you go.</p>
+        </div>
+        <div class="step">
+          <div class="frame"><img src="./assets/shot-3.png" alt="Hand off a structured brief" loading="lazy" /></div>
+          <span class="n">3</span>
+          <h3>Hand off the brief</h3>
+          <p>One click turns the batch into a structured Markdown brief, ready to paste into your agent.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="features">
+    <div class="wrap split">
+      <div>
+        <div class="sec-head" style="margin-bottom:28px">
+          <h2>More than a comment box</h2>
+          <p>Everything you need to describe a change precisely, without leaving the page.</p>
+        </div>
+        <ul class="caps">
+          <li>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 13 6 6"/><path d="M3 3l7 17 2.5-7.5L20 10z"/></svg></span>
+            <div><h4>Component detection</h4><p>Resolves React, Vue, and Svelte component names and source files when they are available.</p></div>
+          </li>
+          <li>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg></span>
+            <div><h4>Measure and inspect</h4><p>Check spacing, sample a color, and read typography (size, line-height, weight, Tailwind utility).</p></div>
+          </li>
+          <li>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+            <div><h4>Annotated screenshots</h4><p>Capture an element and mark it up with arrows, text, blur, and numbered counters before attaching.</p></div>
+          </li>
+          <li>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h6"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg></span>
+            <div><h4>Numbered, stacked pins</h4><p>Several notes on one element stack into a single pin that fans out on hover.</p></div>
+          </li>
+        </ul>
+      </div>
+      <div class="split-shot">
+        <img src="./assets/shot-2.png" alt="Pinpoint panel with numbered comments" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="wrap privacy-band">
+      <span class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+      <h2>Nothing leaves your machine</h2>
+      <p>Pinpoint has no servers, no analytics, and no account. Comments live in your browser's local storage, scoped per site. Screenshots save to your own Downloads folder.</p>
+      <div class="row">
+        <a class="btn btn-ghost" href="./privacy.html">Read the privacy policy</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="final" id="install">
+    <div class="wrap">
+      <h2>Start reviewing in seconds</h2>
+      <p>Add Pinpoint, turn it on for a site, and point at the first thing you want to change.</p>
+      <div class="row">
+        <a class="btn btn-primary" id="store-cta" href="#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>
+          Add to Chrome
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/TamirAssayag/pinpoint">View on GitHub</a>
+      </div>
+      <p class="hero-note" style="margin-top:18px">Chrome Web Store listing coming soon. Star the repo to follow along.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="left"><img src="./assets/icon.png" alt="" /> Pinpoint &middot; a calmer way to review live pages</div>
+    <div class="links">
+      <a href="./privacy.html">Privacy</a>
+      <a href="mailto:djtomerdanan@gmail.com">Support</a>
+      <a href="https://github.com/TamirAssayag/pinpoint">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var label = document.getElementById('sel-label');
+  var list = document.getElementById('c-list');
+  var empty = document.getElementById('c-empty');
+  var count = document.getElementById('c-count');
+  var handoffBtn = document.getElementById('demo-handoff');
+  var resetBtn = document.getElementById('demo-reset');
+  var brief = document.getElementById('brief');
+  var briefPre = document.getElementById('brief-pre');
+  if (!stage) return;
+
+  var samples = [
+    'Tighten this headline, it is too generic.',
+    'Use the brand blue here, not the default.',
+    'This number should be live, not hard-coded.',
+    'Add more padding, the card feels cramped.',
+    'Make this the primary action.'
+  ];
+  var comments = [];
+  var targets = Array.prototype.slice.call(stage.querySelectorAll('[data-sel]'));
+
+  function place(el) {
+    var s = stage.getBoundingClientRect();
+    var r = el.getBoundingClientRect();
+    return { left: r.right - s.left, top: r.top - s.top };
+  }
+
+  targets.forEach(function (el) {
+    el.addEventListener('mouseenter', function () {
+      el.classList.add('hot');
+      label.textContent = el.dataset.sel;
+      var p = place(el);
+      var r = el.getBoundingClientRect();
+      var s = stage.getBoundingClientRect();
+      label.style.left = (r.left - s.left) + 'px';
+      label.style.top = (r.top - s.top - 3) + 'px';
+      label.classList.add('show');
+    });
+    el.addEventListener('mouseleave', function () {
+      el.classList.remove('hot');
+      label.classList.remove('show');
+    });
+    el.addEventListener('click', function (e) {
+      e.preventDefault();
+      addComment(el);
+    });
+  });
+
+  function addComment(el) {
+    var n = comments.length + 1;
+    var c = { n: n, sel: el.dataset.sel, text: samples[(n - 1) % samples.length] };
+    comments.push(c);
+
+    var p = place(el);
+    var pin = document.createElement('div');
+    pin.className = 'pin';
+    pin.textContent = String(n);
+    pin.style.left = p.left + 'px';
+    pin.style.top = p.top + 'px';
+    stage.appendChild(pin);
+    requestAnimationFrame(function () { pin.classList.add('in'); });
+    c.pin = pin;
+
+    var li = document.createElement('li');
+    li.className = 'c-item';
+    var num = document.createElement('span');
+    num.className = 'c-num';
+    num.textContent = String(n);
+    var body = document.createElement('div');
+    body.className = 'c-body';
+    var sel = document.createElement('div');
+    sel.className = 'c-sel';
+    sel.textContent = c.sel;
+    var input = document.createElement('input');
+    input.className = 'c-input';
+    input.value = c.text;
+    input.setAttribute('aria-label', 'Comment for ' + c.sel);
+    input.addEventListener('input', function () { c.text = input.value; });
+    body.appendChild(sel);
+    body.appendChild(input);
+    li.appendChild(num);
+    li.appendChild(body);
+    list.appendChild(li);
+
+    empty.style.display = 'none';
+    count.textContent = String(comments.length);
+    handoffBtn.disabled = false;
+    brief.classList.remove('open');
+  }
+
+  handoffBtn.addEventListener('click', function () {
+    if (!comments.length) return;
+    var md = comments.map(function (c) {
+      return '## ' + c.n + '. ' + c.sel + '\n- Page: northwind.app/dashboard\n- Comment: ' + (c.text || '').trim();
+    }).join('\n\n');
+    briefPre.textContent = md;
+    brief.classList.add('open');
+    brief.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+
+  resetBtn.addEventListener('click', function () {
+    comments.forEach(function (c) { if (c.pin) c.pin.remove(); });
+    comments = [];
+    list.innerHTML = '';
+    empty.style.display = '';
+    count.textContent = '0';
+    handoffBtn.disabled = true;
+    brief.classList.remove('open');
+  });
+
+  window.addEventListener('resize', function () {
+    comments.forEach(function (c) {
+      var el = targets.filter(function (t) { return t.dataset.sel === c.sel; })[0];
+      if (el && c.pin) { var p = place(el); c.pin.style.left = p.left + 'px'; c.pin.style.top = p.top + 'px'; }
+    });
+  });
+})();
+</script>
+</body>
+</html>
